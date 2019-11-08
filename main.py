@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import requests
-from datetime import datetime, timedelta
 
 def getWeather(url):
     #get page content via url
@@ -16,6 +15,8 @@ def getWeather(url):
         dayresult['tmin'] = int(day.find("div", {"class":"tmin"}).text.replace("°C",""))
         dayresult['freeText'] = day.find("div", {"class":"icon"}).find("img")['title']
         dayresult['neuschnee'] = day.find("div", {"class":"nschnee"}).text.replace("\n","").replace("cm","")
+        dayresult['probability'] = day.find("div", {"class": "rrp"}).text.replace("\n","").replace("%","")
+        dayresult['sun'] = day.find("div", {"class": "sonne"}).text.replace("\n","").replace("h","")
         
         if (dayresult['neuschnee'] == "-"):
             dayresult['neuschnee'] = 0
@@ -27,16 +28,14 @@ def getWeather(url):
             if (dayresult['neuschnee'].isnumeric()):
                 dayresult['neuschnee'] = int(dayresult['neuschnee'])
         
+        if (dayresult['probability'].isnumeric()):
+            dayresult['probability'] = int(dayresult['probability'])
+        
+        if (dayresult['sun'].isnumeric()):
+            dayresult['sun'] = int(dayresult['sun'])
+        
+        if (dayresult['sun'] == "-"):
+            dayresult['sun'] = 0
+        
         result.append(dayresult)
     return result
-
-# > getWeather(url)
-# [{'tmax': 3, 'tmin': 1, 'freeText': 'Schneeregen 0h Sonne', 'neuschnee': 3},
-#  {'tmax': 1, 'tmin': 0, 'freeText': 'bedeckt 0h Sonne', 'neuschnee': 0},
-#  {'tmax': 4, 'tmin': 2, 'freeText': 'wolkenlos 8h Sonne', 'neuschnee': 0},
-#  {'tmax': 5, 'tmin': 0, 'freeText': 'wolkenlos 8h Sonne', 'neuschnee': 0},
-#  {'tmax': 2, 'tmin': -1, 'freeText': 'wolkig 3h Sonne', 'neuschnee': 0},
-#  {'tmax': 1, 'tmin': -2, 'freeText': 'wolkig 3h Sonne', 'neuschnee': 0},
-#  {'tmax': 0, 'tmin': -3, 'freeText': 'stark bewölkt 1h Sonne', 'neuschnee': 1},
-#  {'tmax': 0, 'tmin': -3, 'freeText': 'bedeckt 0h Sonne', 'neuschnee': 0},
-#  {'tmax': 3, 'tmin': -3, 'freeText': 'wolkig 2h Sonne', 'neuschnee': 0}]
